@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Otherside 系统</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+        }
+        
+        body {
+            overflow: hidden;
+            background: linear-gradient(135deg, #1a1f35 0%, #202b5a 100%);
+            color: #fff;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .desktop {
+            flex: 1;
+            padding: 20px;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, 80px);
+            grid-template-rows: repeat(auto-fill, 80px);
+            gap: 20px;
+            align-content: start;
+        }
+        
+        .desktop-icon {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 80px;
+            padding: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.2s;
+            user-select: none;
+        }
+        
+        .desktop-icon:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        
+        .desktop-icon i {
+            font-size: 32px;
+            margin-bottom: 8px;
+        }
+        
+        .desktop-icon span {
+            font-size: 12px;
+            text-align: center;
+            text-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+        }
+        
+        .taskbar {
+            height: 48px;
+            background: rgba(30, 30, 40, 0.85);
+            backdrop-filter: blur(10px);
+            display: flex;
+            align-items: center;
+            padding: 0 10px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .taskbar-left, .taskbar-center, .taskbar-right {
+            display: flex;
+            align-items: center;
+            height: 100%;
+        }
+        
+        .taskbar-left {
+            width: 20%;
+        }
+        
+        .taskbar-center {
+            width: 60%;
+            justify-content: center;
+        }
+        
+        .taskbar-right {
+            width: 20%;
+            justify-content: flex-end;
+        }
+        
+        .start-button {
+            padding: 0 15px;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+        }
+        
+        .start-button img {
+            height: 24px;
+            margin-right: 8px;
+        }
+        
+        .taskbar-apps {
+            display: flex;
+            align-items: center;
+            height: 100%;
+        }
+        
+        .taskbar-app {
+            width: 42px;
+            height: 42px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 0 2px;
+            transition: all 0.2s;
+        }
+        
+        .taskbar-app:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        
+        .taskbar-app i {
+            font-size: 18px;
+        }
+        
+        .taskbar-app.active {
+            border-bottom: 2px solid #4c7cee;
+        }
+        
+        .system-tray {
+            display: flex;
+            align-items: center;
+            height: 100%;
+        }
+        
+        .tray-icon {
+            padding: 0 5px;
+            cursor: pointer;
+        }
+        
+        .time-date {
+            padding: 0 10px;
+            font-size: 12px;
+            text-align: center;
+        }
+        
+        .start-menu {
+            position: absolute;
+            bottom: 48px;
+            left: 10px;
+            width: 500px;
+            height: 600px;
+            background: rgba(40, 40, 50, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 10px;
+            display: none;
+            grid-template-columns: 1fr 1fr;
+            grid-template-rows: auto 1fr auto;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            z-index: 1000;
+        }
+        
+        .start-menu-header {
+            grid-column: 1 / span 2;
+            padding: 30px 20px 10px;
+            font-size: 24px;
+            font-weight: 300;
+        }
+        
+        .pinned-apps {
+            padding: 10px 20px;
+        }
+        
+        .recommended {
+            padding: 10px 20px;
+            border-left: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .start-menu-footer {
+            grid-column: 1 / span 2;
+            padding: 15px 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .app-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+        }
+        
+        .app-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .app-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        
+        .app-item i {
+            font-size: 24px;
+            margin-bottom: 8px;
+        }
+        
+        .app-item span {
+            font-size: 12px;
+        }
+        
+        .window {
+            position: absolute;
+            width: 800px;
+            height: 500px;
+            background: rgba(50, 50, 60, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            z-index: 100;
+        }
+        
+        .window-header {
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 15px;
+            background: rgba(30, 30, 40, 0.5);
+            cursor: move;
+        }
+        
+        .window-title {
+            font-size: 14px;
+        }
+        
+        .window-controls {
+            display: flex;
+        }
+        
+        .window-control {
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: all 0.2s;
+        }
+        
+        .window-control:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        
+        .window-content {
+            flex: 1;
+            padding: 20px;
+            overflow: auto;
+        }
+        
+        .window-content h2 {
+            margin-bottom: 20px;
+            font-weight: 300;
+        }
+        
+        .window-content p {
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+        
+        .window.minimized {
+            display: none;
+        }
+        
+        .desktop-background {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: -1;
+            opacity: 0.2;
+        }
+    </style>
+</head>
+<body>
+    <img src="https://source.unsplash.com/random/1920x1080/?nature" class="desktop-background" alt="Background">
+    
+    <div class="desktop">
+        <div class="desktop-icon">
+            <i class="fa-solid fa-computer"></i>
+            <span>此电脑</span>
+        </div>
+        <div class="desktop-icon">
+            <i class="fa-brands fa-edge"></i>
+            <span>浏览器</span>
+        </div>
+        <div class="desktop-icon">
+            <i class="fa-solid fa-folder"></i>
+            <span>文档</span>
+        </div>
+        <div class="desktop-icon">
+            <i class="fa-solid fa-image"></i>
+            <span>图片</span>
+        </div>
+        <div class="desktop-icon">
+            <i class="fa-solid fa-music"></i>
+            <span>音乐</span>
+        </div>
+        <div class="desktop-icon">
+            <i class="fa-solid fa-film"></i>
+            <span>视频</span>
+        </div>
+    </div>
+    
+    <div class="window" style="top: 100px; left: 200px;">
+        <div class="window-header">
+            <div class="window-title">Otherside 系统 - 欢迎</div>
+            <div class="window-controls">
+                <div class="window-control minimize"><i class="fa-solid fa-minus"></i></div>
+                <div class="window-control maximize"><i class="fa-regular fa-square"></i></div>
+                <div class="window-control close"><i class="fa-solid fa-xmark"></i></div>
+            </div>
+        </div>
+        <div class="window-content">
+            <h2>欢迎使用 Otherside 系统</h2>
+            <p>Otherside 是一个现代化的操作系统，设计灵感来源于 Windows 11，但具有独特的视觉风格和用户体验。</p>
+            <p>系统特点：</p>
+            <ul>
+                <li>流畅的毛玻璃效果界面</li>
+                <li>简洁而直观的任务栏</li>
+                <li>现代化的窗口管理</li>
+                <li>深色主题与柔和色彩搭配</li>
+                <li>高度可定制的用户界面</li>
+            </ul>
+            <p>您可以通过开始菜单访问应用程序，或使用任务栏上的图标快速启动常用程序。</p>
+        </div>
+    </div>
+    
+    <div class="taskbar">
+        <div class="taskbar-left">
+            <div class="start-button" id="start-button">
+                <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDI0IDEwMjQiIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCI+PHBhdGggZmlsbD0id2hpdGUiIGQ9Ik04MTkuMiA0MTEuNjJMMTcxLjIgODQuMThBMzIgMzIgMCAwIDAgMTI4IDExMS4wNHY4MDEuOTJhMzIgMzIgMCAwIDAgNDMuMiAyNi44Nmw2NDgtMzI3LjQ0YTMyIDMyIDAgMCAwIDAtNTMuNzZ6Ii8+PC9zdmc+" alt="Start">
+                <span>开始</span>
+            </div>
+        </div>
+        <div class="taskbar-center">
+            <div class="taskbar-apps">
+                <div class="taskbar-app active">
+                    <i class="fa-brands fa-edge"></i>
+                </div>
+                <div class="taskbar-app">
+                    <i class="fa-solid fa-folder"></i>
+                </div>
+                <div class="taskbar-app">
+                    <i class="fa-solid fa-image"></i>
+                </div>
+            </div>
+        </div>
+        <div class="taskbar-right">
+            <div class="system-tray">
+                <div class="tray-icon">
+                    <i class="fa-solid fa-wifi"></i>
+                </div>
+                <div class="tray-icon">
+                    <i class="fa-solid fa-volume-high"></i>
+                </div>
+                <div class="tray-icon">
+                    <i class="fa-solid fa-battery-full"></i>
+                </div>
+                <div class="time-date">
+                    <div id="time">14:25</div>
+                    <div id="date">2023/10/15</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="start-menu" id="start-menu">
+        <div class="start-menu-header">
+            Otherside
+        </div>
+        <div class="pinned-apps">
+            <h3>已固定</h3>
+            <div class="app-grid">
+                <div class="app-item">
+                    <i class="fa-brands fa-edge"></i>
+                    <span>浏览器</span>
+                </div>
+                <div class="app-item">
+                    <i class="fa-solid fa-folder"></i>
+                    <span>文件管理器</span>
+                </div>
+                <div class="app-item">
+                    <i class="fa-solid fa-gear"></i>
+                    <span>设置</span>
+                </div>
+                <div class="app-item">
+                    <i class="fa-solid fa-store"></i>
+                    <span>应用商店</span>
+                </div>
+                <div class="app-item">
+                    <i class="fa-solid fa-image"></i>
+                    <span>照片</span>
+                </div>
+                <div class="app-item">
+                    <i class="fa-solid fa-music"></i>
+                    <span>音乐</span>
+                </div>
+            </div>
+        </div>
+        <div class="recommended">
+            <h3>推荐</h3>
+            <div class="app-list">
+                <div class="app-item">
+                    <i class="fa-solid fa-file-word"></i>
+                    <span>文档.docx</span>
+                </div>
+                <div class="app-item">
+                    <i class="fa-solid fa-file-excel"></i>
+                    <span>预算表.xlsx</span>
+                </div>
+                <div class="app-item">
+                    <i class="fa-solid fa-image"></i>
+                    <span>假期照片.jpg</span>
+                </div>
+            </div>
+        </div>
+        <div class="start-menu-footer">
+            <div class="user-profile">
+                <i class="fa-solid fa-user"></i>
+                <span>当前用户</span>
+            </div>
+            <div class="power-options">
+                <i class="fa-solid fa-power-off"></i>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 显示/隐藏开始菜单
+        document.getElementById('start-button').addEventListener('click', function() {
+            const startMenu = document.getElementById('start-menu');
+            startMenu.style.display = startMenu.style.display === 'grid' ? 'none' : 'grid';
+        });
+        
+        // 更新时间显示
+        function updateTime() {
+            const now = new Date();
+            document.getElementById('time').textContent = now.toLocaleTimeString('zh-CN', {hour: '2-digit', minute:'2-digit'});
+            document.getElementById('date').textContent = now.toLocaleDateString('zh-CN');
+        }
+        
+        setInterval(updateTime, 1000);
+        updateTime();
+        
+        // 窗口控制功能
+        document.querySelectorAll('.window-control').forEach(control => {
+            control.addEventListener('click', function() {
+                const window = this.closest('.window');
+                if (this.classList.contains('minimize')) {
+                    window.classList.add('minimized');
+                } else if (this.classList.contains('close')) {
+                    window.style.display = 'none';
+                }
+            });
+        });
+        
+        // 点击桌面关闭开始菜单
+        document.querySelector('.desktop').addEventListener('click', function() {
+            document.getElementById('start-menu').style.display = 'none';
+        });
+    </script>
+</body>
+</html>
